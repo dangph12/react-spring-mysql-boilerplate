@@ -1,44 +1,17 @@
 services:
-  db:
-    image: mysql:8.0.36-debian
-    environment:
-      - MYSQL_ROOT_PASSWORD_FILE=/run/secrets/db-password
-    restart: always
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "--silent"]
-      interval: 3s
-      retries: 5
-      start_period: 30s
-    secrets:
-      - db-password
-    volumes:
-      - db-data:/var/lib/mysql
-    networks:
-      - spring-mysql
-    ports:
-      - 3306:3306
-
   backend:
     build: backend
     restart: always
-    secrets:
-      - db-password
     networks:
       - react-spring
-      - spring-mysql
     healthcheck:
       test: "curl --fail --silent localhost:8080/actuator/health/readiness | grep UP || exit 1"
       interval: 2s
       timeout: 3s
       retries: 5
       start_period: 2s
-    depends_on:
-      db:
-        condition: service_healthy
     ports:
       - 8080:8080
-    env_file:
-      - ./backend/.env
 
   frontend:
     build:
@@ -46,20 +19,11 @@ services:
     ports:
       - 3000:80
     volumes:
-      - ./frontend/src:/code/src
       - /project/node_modules
     networks:
       - react-spring
     depends_on:
       - backend
 
-volumes:
-  db-data: {}
-
-secrets:
-  db-password:
-    file: db/password.txt
-
 networks:
   react-spring: {}
-  spring-mysql: {}
