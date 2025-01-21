@@ -1,0 +1,48 @@
+services:
+  db:
+    image: mysql:8.0.36-debian
+    environment:
+      - MYSQL_ROOT_PASSWORD_FILE=/run/secrets/db-password
+    restart: always
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "--silent"]
+      interval: 3s
+      retries: 5
+      start_period: 30s
+    secrets:
+      - db-password
+    volumes:
+      - db-data:/var/lib/mysql
+    networks:
+      - spring-mysql
+    ports:
+      - 3306:3306
+
+  backend:
+    networks:
+      - spring-mysql
+    secrets:
+      - db-password
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file:
+      - ./backend/.env.staging
+
+  frontend:
+    build:
+      context: frontend
+      args:
+        NODE_ENV: staging
+    env_file:
+      - ./frontend/.env.staging
+
+volumes:
+  db-data: {}
+
+secrets:
+  db-password:
+    file: ${DB_PASSWORD_FILE}
+
+networks:
+  spring-mysql: {}
