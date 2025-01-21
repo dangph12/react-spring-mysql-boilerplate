@@ -16,13 +16,12 @@ RUN jar -xf ../*.jar
 
 FROM eclipse-temurin:21.0.4_7-jre-alpine
 
-COPY set-env.sh usr/local/bin/set-env.sh
 # Set timezone to Asia/Ho_Chi_Minh
 ENV TZ=Asia/Ho_Chi_Minh
+
 RUN apk add --no-cache tzdata && \
     cp /usr/share/zoneinfo/$TZ /etc/localtime && \
-    echo $TZ > /etc/timezone && \
-    chmod +x usr/local/bin/set-env.sh
+    echo $TZ > /etc/timezone
 
 EXPOSE 8080
 VOLUME /tmp
@@ -32,4 +31,4 @@ COPY --from=prepare-production ${DEPENDENCY}/BOOT-INF/lib /app/lib
 COPY --from=prepare-production ${DEPENDENCY}/META-INF /app/META-INF
 COPY --from=prepare-production ${DEPENDENCY}/BOOT-INF/classes /app
 
-ENTRYPOINT ["usr/local/bin/set-env.sh", "java", "-cp", "app:app/lib/*", "com.farukgenc.boilerplate.springboot.SpringBootBoilerplateApplication"]
+ENTRYPOINT ["java", "-cp", "app:app/lib/*", "com.farukgenc.boilerplate.springboot.SpringBootBoilerplateApplication"]
