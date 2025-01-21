@@ -9,8 +9,13 @@ COPY package-lock.json /code/package-lock.json
 RUN npm ci
 COPY . /code
 
+COPY choose-env.sh /usr/local/bin/choose-env.sh
+
 FROM development AS build
-RUN npm run build
+
+ARG NODE_ENV
+
+RUN chmod +x /usr/local/bin/choose-env.sh && /usr/local/bin/choose-env.sh
 
 FROM nginx:1.27.3-alpine-slim
 

@@ -5,6 +5,8 @@ import viteLogo from '/vite.svg'
 function Count() {
   const [count, setCount] = useState(0)
 
+  const VALUE = import.meta.env.VITE_VALUE
+
   return (
     <>
       <div>
@@ -15,7 +17,7 @@ function Count() {
           <img src={reactLogo} className="logo react" alt="React logo" />
         </a>
       </div>
-      <h1>Vite + React</h1>
+      <h1>Vite is running in {VALUE}</h1>
       <div className="card">
         <button onClick={() => setCount((count) => count + 1)}>count is {count}</button>
         <p>
